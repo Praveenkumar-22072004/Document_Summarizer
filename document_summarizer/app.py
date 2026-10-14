@@ -30,7 +30,19 @@ def _load_env_file(path: str = ".env"):
 
 _load_env_file()
 
-# Use Groq API key from environment (after loading .env)
+# Streamlit Cloud / deployed environment secret support
+
+def _load_streamlit_secret():
+    try:
+        secret_value = st.secrets.get("GROQ_API_KEY")
+        if secret_value and not os.environ.get("GROQ_API_KEY"):
+            os.environ["GROQ_API_KEY"] = str(secret_value)
+    except Exception:
+        pass
+
+_load_streamlit_secret()
+
+# Use Groq API key from environment (after loading .env / deploy secrets)
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 if not GROQ_API_KEY:
     st.warning("Set GROQ_API_KEY as an environment variable for summarization to work. The app will still let you run local preprocessing without calling an LLM.")
@@ -295,12 +307,10 @@ with tabs[0]:
 
                 # Render the selected page
                 current_text = chunks[page_idx - 1]
+                escaped_text = html.escape(current_text).replace("\n", "<br/>")
                 st.markdown("<div class='summary-section'><div class='card'>", unsafe_allow_html=True)
                 st.markdown(f"<h4>Summary • Page {page_idx} of {total_pages}</h4>", unsafe_allow_html=True)
-                st.markdown(
-                    f"<div class='summary-text'>{html.escape(current_text).replace('\\n','<br/>')}</div>",
-                    unsafe_allow_html=True,
-                )
+                st.markdown(f"<div class='summary-text'>{escaped_text}</div>", unsafe_allow_html=True)
                 st.markdown("</div></div>", unsafe_allow_html=True)
 
             if summary:

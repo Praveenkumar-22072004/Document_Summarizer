@@ -4,7 +4,7 @@
 import os
 from typing import TypedDict, Optional
 from langgraph.graph import StateGraph, START, END
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from utils import simple_sentence_based_ratio
 from langchain_groq import ChatGroq  # type: ignore
 
